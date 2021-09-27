@@ -13,9 +13,9 @@ const contentTypeXml string = "application/xml"
 
 type Customer struct {
 	// set the json output tags in struct
-	Name     string `json:"full_name" xml: "name""`
-	City     string `json:"city" xml: "city"`
-	Postcode string `json:"post_code"  xml: "postcode"`
+	Name     string `json:"full_name" xml:"name"`
+	City     string `json:"city" xml:"city"`
+	Postcode string `json:"post_code"  xml:"postcode"`
 }
 
 func greet(writer http.ResponseWriter, request *http.Request) {
@@ -23,6 +23,7 @@ func greet(writer http.ResponseWriter, request *http.Request) {
 }
 
 func getAllCustomers(writer http.ResponseWriter, request *http.Request) {
+	print("Called Get all Customers\n")
 	// creating slice of customers with the Customer struct
 	customers := []Customer{
 		{"Ayyub", "Luton", "LT01 8BH"}, {"Umayamah", "London", "SE6 7TH"},
@@ -36,10 +37,10 @@ func getAllCustomers(writer http.ResponseWriter, request *http.Request) {
 		// set xml content type on the writer
 		writer.Header().Add("Content-Type", contentTypeXml)
 		// encode the customers in xml format
-		log.Fatal(xml.NewEncoder(writer).Encode(customers))
+		xml.NewEncoder(writer).Encode(customers)
 	} else {
 		// encode the customers in json format
-		log.Fatal(json.NewEncoder(writer).Encode(customers))
+		json.NewEncoder(writer).Encode(customers)
 	}
 
 }
