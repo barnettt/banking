@@ -3,8 +3,7 @@ package app
 import (
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
-	"log"
+	"github.com/barnettt/banking/service"
 	"net/http"
 )
 
@@ -18,18 +17,14 @@ type Customer struct {
 	Postcode string `json:"post_code"  xml:"postcode"`
 }
 
-func greet(writer http.ResponseWriter, request *http.Request) {
-	log.Fatal(fmt.Fprintf(writer, "Hello world!!"))
+type CustomerHandler struct {
+	service service.CustomerService
 }
 
-func getAllCustomers(writer http.ResponseWriter, request *http.Request) {
+func (customerHandler *CustomerHandler) getAllCustomers(writer http.ResponseWriter, request *http.Request) {
 	print("Called Get all Customers\n")
-	// creating slice of customers with the Customer struct
-	customers := []Customer{
-		{"Ayyub", "Luton", "LT01 8BH"}, {"Umayamah", "London", "SE6 7TH"},
-		{"Sumayah", "London", "BR3 2QQ"},
-	}
 
+	customers, _ := customerHandler.service.GetAllCustomers()
 	contentType := request.Header.Get("Content-type") == contentTypeXml
 	// set json content type on the writer - default
 	writer.Header().Add("Content-Type", contentTypeJson)

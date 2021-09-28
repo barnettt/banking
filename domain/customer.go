@@ -6,10 +6,10 @@ type Customer struct {
 	Name        string `json:"full_name" xml:"name"`
 	City        string `json:"city" xml:"city"`
 	Postcode    string `json:"post_code"  xml:"postcode"`
-	DateOfBirth string
+	dateOfBirth string
 	Status      string
 }
 
 type CustomerRepository interface {
-	findAll() ([]Customer, error)
+	FindAll() ([]Customer, error)
 }

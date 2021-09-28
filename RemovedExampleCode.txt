@@ -1,0 +1,30 @@
+// code created while following the course, but removed .
+/ i'm keeping as a reference
+
+// from removed from -> app/app.go replaced with ->  handler := CustomerHandler{service.NewCustomerService(domain.NewCustomerRepositoryStub())}
+
+router.HandleFunc("/greet", greet).Methods(http.MethodGet)
+router.HandleFunc("/customers/{customer_id:[0-9]+}", getCustomer).Methods(http.MethodGet)
+router.HandleFunc("/customers", createCustomer).Methods(http.MethodPost)
+
+func createCustomer(outWriter http.ResponseWriter, inRequest *http.Request) {
+	fmt.Fprint(outWriter, "Post Data Received ")
+}
+
+func getCustomer(writer http.ResponseWriter, request *http.Request) {
+	vars := mux.Vars(request)
+	fmt.Fprintf(writer, vars["customer_id"])
+
+}
+
+// from handlers/handlers.go
+func greet(writer http.ResponseWriter, request *http.Request) {
+	log.Fatal(fmt.Fprintf(writer, "Hello world!!"))
+}
+
+// creating slice of customers with the Customer struct
+// this is replaced by call to -> customers, _ := customerHandler.service.GetAllCustomers()
+	//  customers := []Customer{
+	//	{"Ayyub", "Luton", "LT01 8BH"}, {"Umayamah", "London", "SE6 7TH"},
+	//	{"Sumayah", "London", "BR3 2QQ"},
+	//}
