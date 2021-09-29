@@ -28,3 +28,17 @@ func greet(writer http.ResponseWriter, request *http.Request) {
 	//	{"Ayyub", "Luton", "LT01 8BH"}, {"Umayamah", "London", "SE6 7TH"},
 	//	{"Sumayah", "London", "BR3 2QQ"},
 	//}
+
+
+====================
+// repository default db parsing of rows
+func (repository CustomerRepositoryDb) getCustomersFromRows(rows *sql.Rows, customer Customer) ([]Customer, *exceptions.AppError) {
+	customers := make([]Customer, 0)
+	for rows.Next() {
+		error := rows.Scan(&customer.Id, &customer.Name, &customer.City, &customer.Postcode, &customer.DateOfBirth, &customer.Status)
+		if error != nil {
+			logger.Error("Error parsing customer row from database "+error.Error())
+			return nil, exceptions.NewDatabaseError("Unexpected database error ")
+		}
+		customers = append(customers, customer)
+	}

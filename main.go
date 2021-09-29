@@ -2,9 +2,10 @@ package main
 
 import (
 	"github.com/barnettt/banking/app"
+	"github.com/barnettt/banking/logger"
 )
 
 func main() {
-	print("Starting App")
+	logger.Info("Starting App.....")
 	app.StartApp()
 }

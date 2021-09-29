@@ -2,6 +2,7 @@ package app
 
 import (
 	"github.com/barnettt/banking/domain"
+	"github.com/barnettt/banking/logger"
 	"github.com/barnettt/banking/service"
 	"github.com/gorilla/mux"
 	"log"
@@ -11,7 +12,8 @@ import (
 func StartApp() {
 
 	// create a new multiplexer
-	print("creating mux\n ")
+	// print("creating mux\n ")
+	logger.Info("creating mux ")
 	// mux := http.NewServeMux()
 
 	router := mux.NewRouter()
@@ -28,7 +30,8 @@ func StartApp() {
 
 	//  start the server using the defaultServMux default multiplexer
 	// log any error to fatal
-	print("starting listener ..... \n")
+	// print("starting listener ..... \n")
+	logger.Info("starting listener ..... ")
 	log.Fatal(http.ListenAndServe("localhost:8000", router))
 
 }

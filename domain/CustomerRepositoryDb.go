@@ -2,38 +2,38 @@ package domain
 
 import (
 	"database/sql"
+	_ "errors"
 	"github.com/barnettt/banking/exceptions"
+	"github.com/barnettt/banking/logger"
 	_ "github.com/go-sql-driver/mysql"
-	"log"
+	"github.com/jmoiron/sqlx"
 	"time"
 )
 
 type CustomerRepositoryDb struct {
-	client *sql.DB
+	client *sqlx.DB
 }
 
 func (repository CustomerRepositoryDb) FindAll() ([]Customer, *exceptions.AppError) {
-
 	findAllCustomers := "select customer_id, name, city, postcode, date_of_birth, status from customers"
-	rows, error := repository.client.Query(findAllCustomers)
-	var customer Customer
+	customers := make([]Customer, 0)
+	error := repository.client.Select(&customers, findAllCustomers)
 	if error != nil {
-		log.Println("Error accessing customer database ", error)
+		logger.Error("Error accessing customer database " + error.Error())
 		return nil, exceptions.NewDatabaseError("Unexpected database error ")
 	}
-	return repository.getCustomersFromRows(rows, customer)
+	return customers, nil
 }
 
 func (repository CustomerRepositoryDb) FindById(id string) (*Customer, *exceptions.AppError) {
 	customerQuery := "select customer_id, name, city, postcode, date_of_birth, status from customers where customer_id = ?"
 	var customer Customer
-	row := repository.client.QueryRow(customerQuery, id)
-	err := row.Scan(&customer.Id, &customer.Name, &customer.City, &customer.Postcode, &customer.dateOfBirth, &customer.Status)
-	if err != nil {
-		if err == sql.ErrNoRows {
+	error := repository.client.Get(&customer, customerQuery, id)
+	if error != nil {
+		if error == sql.ErrNoRows {
 			return nil, exceptions.NewNotFoundError("Customer not found")
 		}
-		log.Println("Error retrieving customer by id")
+		logger.Error("Error retrieving customer by id " + error.Error())
 		return nil, exceptions.NewDatabaseError("Unexpected database error")
 	}
 	return &customer, nil
@@ -41,30 +41,16 @@ func (repository CustomerRepositoryDb) FindById(id string) (*Customer, *exceptio
 
 func (repository CustomerRepositoryDb) FindByStatus(status string) ([]Customer, *exceptions.AppError) {
 	customerStatusQuery := "select customer_id, name, city, postcode, date_of_birth, status from customers where status = ?"
-
-	rows, error := repository.client.Query(customerStatusQuery, status)
-	var customer Customer
-	if error != nil {
-		log.Println("Error accessing customer database ", error)
-		return nil, exceptions.NewDatabaseError("Unexpected database error ")
-	}
-	return repository.getCustomersFromRows(rows, customer)
-}
-
-func (repository CustomerRepositoryDb) getCustomersFromRows(rows *sql.Rows, customer Customer) ([]Customer, *exceptions.AppError) {
 	customers := make([]Customer, 0)
-	for rows.Next() {
-		error := rows.Scan(&customer.Id, &customer.Name, &customer.City, &customer.Postcode, &customer.dateOfBirth, &customer.Status)
-		if error != nil {
-			log.Println("Error parsing customer row from database ")
-			return nil, exceptions.NewDatabaseError("Unexpected database error ")
-		}
-		customers = append(customers, customer)
+	error := repository.client.Select(&customers, customerStatusQuery, status)
+	if error != nil {
+		logger.Error("Error accessing customer database " + error.Error())
+		return nil, exceptions.NewDatabaseError("Unexpected database error ")
 	}
 	return customers, nil
 }
 func NewCustomerRepositoryDb() CustomerRepositoryDb {
-	client, err := sql.Open("mysql", "banking:banking@tcp(localhost:3306)/banking")
+	client, err := sqlx.Open("mysql", "banking:banking@tcp(localhost:3306)/banking")
 	if err != nil {
 		panic(err)
 	}
