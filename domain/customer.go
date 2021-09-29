@@ -1,5 +1,7 @@
 package domain
 
+import "github.com/barnettt/banking/exceptions"
+
 type Customer struct {
 	// set the json output tags in struct
 	Id          string
@@ -11,5 +13,7 @@ type Customer struct {
 }
 
 type CustomerRepository interface {
-	FindAll() ([]Customer, error)
+	FindAll() ([]Customer, *exceptions.AppError)
+	FindById(string) (*Customer, *exceptions.AppError)
+	FindByStatus(string) ([]Customer, *exceptions.AppError)
 }

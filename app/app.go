@@ -16,8 +16,14 @@ func StartApp() {
 
 	router := mux.NewRouter()
 	// Wiring app components
-	handler := CustomerHandler{service.NewCustomerService(domain.NewCustomerRepositoryStub())}
+	// handler := CustomerHandler{service.NewCustomerService(domain.NewCustomerRepositoryStub())}
+	handler := CustomerHandler{service.NewCustomerService(domain.NewCustomerRepositoryDb())}
+
 	// define all the routes
+
+	router.HandleFunc("/customers/{id:[0-9]+}", handler.getCustomer).Methods(http.MethodGet)
+	router.HandleFunc("/customers?status=active", handler.getAllCustomers).Methods(http.MethodGet)
+	router.HandleFunc("/customers?status=inactive", handler.getAllCustomers).Methods(http.MethodGet)
 	router.HandleFunc("/customers", handler.getAllCustomers).Methods(http.MethodGet)
 
 	//  start the server using the defaultServMux default multiplexer
