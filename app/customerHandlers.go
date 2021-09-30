@@ -3,7 +3,7 @@ package app
 import (
 	"encoding/json"
 	"encoding/xml"
-	"github.com/barnettt/banking/domain"
+	"github.com/barnettt/banking/dto"
 	"github.com/barnettt/banking/exceptions"
 	"github.com/barnettt/banking/service"
 	"github.com/gorilla/mux"
@@ -70,7 +70,7 @@ func (customerHandler *CustomerHandler) getCustomer(writer http.ResponseWriter, 
 	}
 
 }
-func (customerHandler *CustomerHandler) returnResponse(writer http.ResponseWriter, error *exceptions.AppError, contentType bool, customers []domain.Customer) {
+func (customerHandler *CustomerHandler) returnResponse(writer http.ResponseWriter, error *exceptions.AppError, contentType bool, customers []dto.CustomerResponse) {
 	if error != nil {
 		if contentType {
 			writeResponse(writer, error.Code, error.AsMessage(), contentTypeXml)

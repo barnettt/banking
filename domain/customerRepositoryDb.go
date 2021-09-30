@@ -3,10 +3,12 @@ package domain
 import (
 	"database/sql"
 	_ "errors"
+	"fmt"
 	"github.com/barnettt/banking/exceptions"
 	"github.com/barnettt/banking/logger"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	"os"
 	"time"
 )
 
@@ -50,7 +52,15 @@ func (repository CustomerRepositoryDb) FindByStatus(status string) ([]Customer, 
 	return customers, nil
 }
 func NewCustomerRepositoryDb() CustomerRepositoryDb {
-	client, err := sqlx.Open("mysql", "banking:banking@tcp(localhost:3306)/banking")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWD")
+	dbName := os.Getenv("DB_NAME")
+	dbProtocol := os.Getenv("DB_PROTOCOL")
+	dbDrivername := os.Getenv("DB_DRIVER_NAME")
+	dbHost := os.Getenv("DB_HOST")
+	dbPort := os.Getenv("DB_PORT")
+
+	client, err := sqlx.Open(fmt.Sprintf("%s", dbDrivername), fmt.Sprintf("%s:%s@%s(%s:%s)/%s", user, password, dbProtocol, dbHost, dbPort, dbName))
 	if err != nil {
 		panic(err)
 	}

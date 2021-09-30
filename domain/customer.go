@@ -1,6 +1,9 @@
 package domain
 
-import "github.com/barnettt/banking/exceptions"
+import (
+	"github.com/barnettt/banking/dto"
+	"github.com/barnettt/banking/exceptions"
+)
 
 type Customer struct {
 	// set the json output tags in struct
@@ -12,9 +15,24 @@ type Customer struct {
 	Status      string
 }
 
-//`json:"full_name" xml:"name"`
-//	City        string `json:"city" xml:"city"`
-//	Postcode    string `json:"post_code"  xml:"postcode"`
+func (customer Customer) getStatus() string {
+	status := "active"
+	if customer.Status == "0" {
+		status = "inactive"
+	}
+	return status
+}
+func (customer Customer) ToDto() dto.CustomerResponse {
+
+	return dto.CustomerResponse{
+		Id:          customer.Id,
+		Name:        customer.Name,
+		City:        customer.City,
+		Postcode:    customer.Postcode,
+		DateOfBirth: customer.DateOfBirth,
+		Status:      customer.getStatus(),
+	}
+}
 
 type CustomerRepository interface {
 	FindAll() ([]Customer, *exceptions.AppError)
