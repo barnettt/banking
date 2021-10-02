@@ -19,3 +19,11 @@ func NewNotFoundError(message string) *AppError {
 func NewDatabaseError(message string) *AppError {
 	return &AppError{http.StatusInternalServerError, message}
 }
+
+func NewPayloadParseError(message string) *AppError {
+	return &AppError{http.StatusInternalServerError, message}
+}
+
+func NewValidationError(message string) *AppError {
+	return &AppError{http.StatusUnprocessableEntity, message}
+}
