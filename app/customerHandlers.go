@@ -6,12 +6,10 @@ import (
 	"github.com/barnettt/banking/dto"
 	"github.com/barnettt/banking/exceptions"
 	"github.com/barnettt/banking/service"
+	"github.com/barnettt/banking/util"
 	"github.com/gorilla/mux"
 	"net/http"
 )
-
-const contentTypeJson string = "application/json"
-const contentTypeXml string = "application/xml"
 
 type CustomerHandler struct {
 	service service.CustomerService
@@ -21,9 +19,9 @@ func (customerHandler *CustomerHandler) GetCustomersByStatus(writer http.Respons
 	print("Called Get Customers by status \n")
 	vars := mux.Vars(request)
 	status := vars["status"]
-	customers, error := customerHandler.service.GetCustomersByStatus(status)
-	contentType := request.Header.Get("Content-type") == contentTypeXml
-	customerHandler.returnResponse(writer, error, contentType, customers)
+	customers, err := customerHandler.service.GetCustomersByStatus(status)
+	contentType := request.Header.Get("Content-type") == util.ContentTypeXml
+	customerHandler.returnResponse(writer, err, contentType, customers)
 }
 
 func (customerHandler *CustomerHandler) getAllCustomers(writer http.ResponseWriter, request *http.Request) {
@@ -37,68 +35,69 @@ func (customerHandler *CustomerHandler) getAllCustomers(writer http.ResponseWrit
 		} else {
 			requiredStatus = "0"
 		}
-		customers, error := customerHandler.service.GetCustomersByStatus(requiredStatus)
-		contentType := request.Header.Get("Content-type") == contentTypeXml
-		customerHandler.returnResponse(writer, error, contentType, customers)
+		customers, err := customerHandler.service.GetCustomersByStatus(requiredStatus)
+		contentType := request.Header.Get("Content-type") == util.ContentTypeXml
+		customerHandler.returnResponse(writer, err, contentType, customers)
 		return
 	}
-	customers, error := customerHandler.service.GetAllCustomers()
-	contentType := request.Header.Get("Content-type") == contentTypeXml
-	customerHandler.returnResponse(writer, error, contentType, customers)
+	customers, err := customerHandler.service.GetAllCustomers()
+	contentType := request.Header.Get("Content-type") == util.ContentTypeXml
+	customerHandler.returnResponse(writer, err, contentType, customers)
 
 }
 
 func (customerHandler *CustomerHandler) getCustomer(writer http.ResponseWriter, request *http.Request) {
 	print("Called get a customer  \n")
 	vars := mux.Vars(request)
-	customer, error := customerHandler.service.GetCustomer(vars["id"])
-	contentType := request.Header.Get("Content-Type") == contentTypeXml
-	if error != nil {
+	customer, err := customerHandler.service.GetCustomer(vars["id"])
+	contentType := request.Header.Get("Content-Type") == util.ContentTypeXml
+	if err != nil {
 		if contentType {
-			writeResponse(writer, error.Code, error.AsMessage(), contentTypeXml)
+			WriteResponse(writer, err.Code, err.AsMessage(), util.ContentTypeXml)
 		} else {
-			writeResponse(writer, error.Code, error.AsMessage(), contentTypeJson)
+			WriteResponse(writer, err.Code, err.AsMessage(), util.ContentTypeJson)
 		}
 		return
 	}
 	if contentType {
 		// set xml content type on the writer
-		writeResponse(writer, http.StatusOK, customer, contentTypeXml)
+		WriteResponse(writer, http.StatusOK, customer, util.ContentTypeXml)
 	} else {
 		// encode the customers in json format
-		writeResponse(writer, http.StatusOK, customer, contentTypeJson)
+		WriteResponse(writer, http.StatusOK, customer, util.ContentTypeJson)
 	}
 
 }
 func (customerHandler *CustomerHandler) returnResponse(writer http.ResponseWriter, error *exceptions.AppError, contentType bool, customers []dto.CustomerResponse) {
 	if error != nil {
 		if contentType {
-			writeResponse(writer, error.Code, error.AsMessage(), contentTypeXml)
+			WriteResponse(writer, error.Code, error.AsMessage(), util.ContentTypeXml)
 		} else {
-			writeResponse(writer, error.Code, error.AsMessage(), contentTypeJson)
+			WriteResponse(writer, error.Code, error.AsMessage(), util.ContentTypeJson)
 		}
 		return
 	}
 	if contentType {
 		// set xml content type on the writer
-		writeResponse(writer, http.StatusOK, customers, contentTypeXml)
+		WriteResponse(writer, http.StatusOK, customers, util.ContentTypeXml)
 	} else {
 		// encode the customers in json format
-		writeResponse(writer, http.StatusOK, customers, contentTypeJson)
+		WriteResponse(writer, http.StatusOK, customers, util.ContentTypeJson)
 	}
 }
-func writeResponse(writer http.ResponseWriter, code int, data interface{}, contentType string) {
+
+func WriteResponse(writer http.ResponseWriter, code int, data interface{}, contentType string) {
 	writer.Header().Add("Content-Type", contentType)
 	writer.WriteHeader(code)
-	if contentType == contentTypeXml {
-		error := xml.NewEncoder(writer).Encode(data)
-		if error != nil {
-			panic(error)
+	if contentType == util.ContentTypeXml {
+		err := xml.NewEncoder(writer).Encode(data)
+		if err != nil {
+			panic(err)
 		}
 		return
 	}
-	error := json.NewEncoder(writer).Encode(data)
-	if error != nil {
-		panic(error)
+	err := json.NewEncoder(writer).Encode(data)
+	if err != nil {
+		panic(err)
 	}
 }

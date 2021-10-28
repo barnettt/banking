@@ -2,6 +2,8 @@ package app
 
 import (
 	"fmt"
+	"github.com/barnettt/banking/auth"
+	"github.com/barnettt/banking/db"
 	"github.com/barnettt/banking/domain"
 	"github.com/barnettt/banking/logger"
 	"github.com/barnettt/banking/service"
@@ -27,26 +29,29 @@ func StartApp() {
 		log.Fatal("Environment variables are undefined ... ")
 	}
 	// create db connection pool
-	dbClient := getDbClient()
+	var dbClient = getDbClient()
 	// create a new multiplexer
 	// print("creating mux\n ")
 	logger.Info("creating mux ")
 	// mux := http.NewServeMux()
-
+	transactionManager := getTransactionManager(dbClient)
 	router := mux.NewRouter()
 	// Wiring app components
 	// handler := CustomerHandler{service.NewCustomerService(domain.NewCustomerRepositoryStub())}
 	customerHandler := CustomerHandler{service.NewCustomerService(domain.NewCustomerRepositoryDb(dbClient))}
 	accountHandler := AccountHandler{service.NewAccountService(domain.NewAccountRepositoryDb(dbClient))}
+	transactionHandler := TransactionHandler{service.NewTransactionService(domain.NewTransactionRepositoryDb(dbClient), domain.NewAccountRepositoryDb(dbClient), transactionManager)}
 
 	// define all the routes
 
-	router.HandleFunc("/customers/{id:[0-9]+}", customerHandler.getCustomer).Methods(http.MethodGet)
-	router.HandleFunc("/customers?status=active", customerHandler.getAllCustomers).Methods(http.MethodGet)
-	router.HandleFunc("/customers?status=inactive", customerHandler.getAllCustomers).Methods(http.MethodGet)
-	router.HandleFunc("/customers", customerHandler.getAllCustomers).Methods(http.MethodGet)
-	router.HandleFunc("/customers/{id:[0-9]+}/accounts", accountHandler.saveAccount).Methods(http.MethodPost)
-
+	router.HandleFunc("/customers/{id:[0-9]+}", customerHandler.getCustomer).Methods(http.MethodGet).Name("GetCustomer")
+	router.HandleFunc("/customers?status=active", customerHandler.getAllCustomers).Methods(http.MethodGet).Name("GetAllActiveCustomer")
+	router.HandleFunc("/customers?status=inactive", customerHandler.getAllCustomers).Methods(http.MethodGet).Name("GetAllInActiveCustomer")
+	router.HandleFunc("/customers", customerHandler.getAllCustomers).Methods(http.MethodGet).Name("GetAllCustomer")
+	router.HandleFunc("/customers/{id:[0-9]+}/accounts", accountHandler.saveAccount).Methods(http.MethodPost).Name("NewAccount")
+	router.HandleFunc("/customers/{customer_id:[0-9]+}/accounts/{id:[0-9]+}", transactionHandler.saveTransaction).Methods(http.MethodPost).Name("NewTransaction")
+	authMiddleware := auth.NewAuthorisationMiddleware(domain.AuthorisationRepositoryDB{Client: dbClient})
+	router.Use(authMiddleware.AuthorisationHandler())
 	//  start the server using the defaultServMux default multiplexer
 	// log any error to fatal
 	// print("starting listener ..... \n")
@@ -55,6 +60,10 @@ func StartApp() {
 	logger.Info("starting listener ..... on server port : " + port)
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", host, port), router))
 
+}
+
+func getTransactionManager(client *sqlx.DB) db.TxManager {
+	return db.NewTxManager(client)
 }
 
 func getDbClient() *sqlx.DB {

@@ -7,6 +7,7 @@ import (
 	"github.com/barnettt/banking/exceptions"
 	"github.com/barnettt/banking/logger"
 	"github.com/barnettt/banking/service"
+	"github.com/barnettt/banking/util"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -21,25 +22,25 @@ func (accountHandler *AccountHandler) saveAccount(writer http.ResponseWriter, re
 	account, derr := getDecodedAccount(contentType, request)
 	if derr != nil {
 		appError := exceptions.NewPayloadParseError("Unable to decode payload decoder error ")
-		writeResponse(writer, http.StatusInternalServerError, appError.AsMessage(), contentType)
+		WriteResponse(writer, http.StatusInternalServerError, appError.AsMessage(), contentType)
 		return
 	}
 	account.CustomerId = vars["id"]
 	acc, err := accountHandler.accountService.Save(account)
 	if err != nil {
 		appError := exceptions.NewPayloadParseError("Unable save to account")
-		writeResponse(writer, http.StatusInternalServerError, appError.AsMessage(), contentType)
+		WriteResponse(writer, http.StatusInternalServerError, appError.AsMessage(), contentType)
 		return
 	}
 	err = err
-	writeResponse(writer, http.StatusCreated, acc, contentType)
+	WriteResponse(writer, http.StatusCreated, acc, contentType)
 }
 
 func getDecodedAccount(contentType string, request *http.Request) (*dto.AccountRequest, error) {
 
 	var account dto.AccountRequest
 
-	if contentType == contentTypeXml {
+	if contentType == util.ContentTypeXml {
 
 		err := xml.NewDecoder(request.Body).Decode(&account)
 		if err != nil {

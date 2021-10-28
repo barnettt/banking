@@ -15,7 +15,6 @@ type AccountRepositoryDb struct {
 func (repository AccountRepositoryDb) Save(inAccount Account) (*dto.NewAccountResponse, *exceptions.AppError) {
 	accountInsert := "INSERT INTO ACCOUNTS (customer_id, opening_date, account_type, amount, status) " +
 		"VALUES (?, ?, ?, ?, ?)"
-		// "VALUES (?, STR_TO_DATE(?,'%d/%m/%Y %H:%i%s'), ?, ?, ?)"
 	status := inAccount.getDbStatus()
 
 	outAccount, err := repository.client.Exec(accountInsert, inAccount.CustomerId, inAccount.OpeningDate,
@@ -34,6 +33,36 @@ func (repository AccountRepositoryDb) Save(inAccount Account) (*dto.NewAccountRe
 
 	res := dto.GetAccountResponse(strconv.Itoa(int(id)))
 	return &res, nil
+}
+func (repository AccountRepositoryDb) GetAccount(accountId string) (*dto.AccountRequest, *exceptions.AppError) {
+	accountRetrieve := "SELECT account_id, customer_id, opening_date, account_type, amount, status " +
+		"FROM accounts where account_id=?"
+	accountResponse := make([]dto.AccountRequest, 0)
+	err := repository.client.Select(&accountResponse, accountRetrieve, accountId)
+	if err != nil {
+		logger.Error(err.Error())
+		return nil, exceptions.NewDatabaseError("Unexpected database error")
+	}
+	return &accountResponse[0], nil
+}
+
+// UpdateAccount /* not ideal bit of a hack need the transaction back in the caller
+func (repository AccountRepositoryDb) UpdateAccount(account Account) *exceptions.AppError {
+	logger.Info("account id : " + account.AccountId + " amount : " + account.Amount)
+	updateQuery := "UPDATE accounts SET amount = ? WHERE account_id = ? "
+	res, err := repository.client.Exec(updateQuery, account.Amount, account.AccountId)
+	if err != nil {
+		logger.Error(err.Error())
+		return exceptions.NewDatabaseError("Unable to update account")
+
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		logger.Error(err.Error())
+		return exceptions.NewDatabaseError("Unexpected database error")
+	}
+	logger.Info("Updated : " + strconv.Itoa(int(id)))
+	return nil // don't return anything no need
 }
 
 func NewAccountRepositoryDb(client *sqlx.DB) AccountRepositoryDb {

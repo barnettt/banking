@@ -32,4 +32,6 @@ func (account Account) getDbStatus() string {
 
 type AccountRepository interface {
 	Save(Account) (*dto.NewAccountResponse, *exceptions.AppError)
+	GetAccount(accountId string) (*dto.AccountRequest, *exceptions.AppError)
+	UpdateAccount(Account Account) *exceptions.AppError
 }

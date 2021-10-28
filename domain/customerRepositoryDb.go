@@ -49,6 +49,5 @@ func (repository CustomerRepositoryDb) FindByStatus(status string) ([]Customer, 
 	return customers, nil
 }
 func NewCustomerRepositoryDb(dbClient *sqlx.DB) CustomerRepositoryDb {
-
 	return CustomerRepositoryDb{dbClient}
 }
