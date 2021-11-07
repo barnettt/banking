@@ -6,6 +6,7 @@ import (
 	"github.com/barnettt/banking/exceptions"
 )
 
+//go:generate mockgen -destination=../mock/service/mockCustomerService.go -package=service github.com/barnettt/banking/service CustomerService
 type CustomerService interface {
 	GetAllCustomers() ([]dto.CustomerResponse, *exceptions.AppError)
 	GetCustomer(id string) (*dto.CustomerResponse, *exceptions.AppError)

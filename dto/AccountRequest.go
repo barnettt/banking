@@ -17,8 +17,10 @@ func (account AccountRequest) Validate() *exceptions.AppError {
 	if account.Amount < 5000 {
 		return exceptions.NewValidationError("Amount is below the required minimum of 5000 ")
 	}
-	if account.AccountType != "checking" || account.AccountType != "saving" {
+	if account.AccountType == "checking" || account.AccountType == "saving" {
+		return nil
+	} else {
 		return exceptions.NewValidationError("Invalid Account type,  must be one of checking or saving ")
 	}
-	return nil
+
 }

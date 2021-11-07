@@ -37,19 +37,19 @@ func StartApp() {
 	transactionManager := getTransactionManager(dbClient)
 	router := mux.NewRouter()
 	// Wiring app components
-	// handler := CustomerHandler{service.NewCustomerService(domain.NewCustomerRepositoryStub())}
+	// handler := CustomerHandler{Service.NewCustomerService(domain.NewCustomerRepositoryStub())}
 	customerHandler := CustomerHandler{service.NewCustomerService(domain.NewCustomerRepositoryDb(dbClient))}
 	accountHandler := AccountHandler{service.NewAccountService(domain.NewAccountRepositoryDb(dbClient))}
 	transactionHandler := TransactionHandler{service.NewTransactionService(domain.NewTransactionRepositoryDb(dbClient), domain.NewAccountRepositoryDb(dbClient), transactionManager)}
 
 	// define all the routes
 
-	router.HandleFunc("/customers/{id:[0-9]+}", customerHandler.getCustomer).Methods(http.MethodGet).Name("GetCustomer")
-	router.HandleFunc("/customers?status=active", customerHandler.getAllCustomers).Methods(http.MethodGet).Name("GetAllActiveCustomer")
-	router.HandleFunc("/customers?status=inactive", customerHandler.getAllCustomers).Methods(http.MethodGet).Name("GetAllInActiveCustomer")
-	router.HandleFunc("/customers", customerHandler.getAllCustomers).Methods(http.MethodGet).Name("GetAllCustomer")
-	router.HandleFunc("/customers/{id:[0-9]+}/accounts", accountHandler.saveAccount).Methods(http.MethodPost).Name("NewAccount")
-	router.HandleFunc("/customers/{customer_id:[0-9]+}/accounts/{id:[0-9]+}", transactionHandler.saveTransaction).Methods(http.MethodPost).Name("NewTransaction")
+	router.HandleFunc("/customers/{id:[0-9]+}", customerHandler.GetCustomer).Methods(http.MethodGet).Name("GetCustomer")
+	router.HandleFunc("/customers?status=active", customerHandler.GetAllCustomers).Methods(http.MethodGet).Name("GetAllActiveCustomer")
+	router.HandleFunc("/customers?status=inactive", customerHandler.GetAllCustomers).Methods(http.MethodGet).Name("GetAllInActiveCustomer")
+	router.HandleFunc("/customers", customerHandler.GetAllCustomers).Methods(http.MethodGet).Name("GetAllCustomer")
+	router.HandleFunc("/customers/{id:[0-9]+}/accounts", accountHandler.SaveAccount).Methods(http.MethodPost).Name("NewAccount")
+	router.HandleFunc("/customers/{customer_id:[0-9]+}/accounts/{id:[0-9]+}", transactionHandler.SaveTransaction).Methods(http.MethodPost).Name("NewTransaction")
 	authMiddleware := auth.NewAuthorisationMiddleware(domain.AuthorisationRepositoryDB{Client: dbClient})
 	router.Use(authMiddleware.AuthorisationHandler())
 	//  start the server using the defaultServMux default multiplexer

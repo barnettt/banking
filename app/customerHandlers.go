@@ -12,19 +12,19 @@ import (
 )
 
 type CustomerHandler struct {
-	service service.CustomerService
+	Service service.CustomerService
 }
 
 func (customerHandler *CustomerHandler) GetCustomersByStatus(writer http.ResponseWriter, request *http.Request) {
 	print("Called Get Customers by status \n")
 	vars := mux.Vars(request)
 	status := vars["status"]
-	customers, err := customerHandler.service.GetCustomersByStatus(status)
+	customers, err := customerHandler.Service.GetCustomersByStatus(status)
 	contentType := request.Header.Get("Content-type") == util.ContentTypeXml
 	customerHandler.returnResponse(writer, err, contentType, customers)
 }
 
-func (customerHandler *CustomerHandler) getAllCustomers(writer http.ResponseWriter, request *http.Request) {
+func (customerHandler *CustomerHandler) GetAllCustomers(writer http.ResponseWriter, request *http.Request) {
 	print("Called Get all Customers\n")
 
 	status, ok := request.URL.Query()["status"]
@@ -35,21 +35,21 @@ func (customerHandler *CustomerHandler) getAllCustomers(writer http.ResponseWrit
 		} else {
 			requiredStatus = "0"
 		}
-		customers, err := customerHandler.service.GetCustomersByStatus(requiredStatus)
+		customers, err := customerHandler.Service.GetCustomersByStatus(requiredStatus)
 		contentType := request.Header.Get("Content-type") == util.ContentTypeXml
 		customerHandler.returnResponse(writer, err, contentType, customers)
 		return
 	}
-	customers, err := customerHandler.service.GetAllCustomers()
+	customers, err := customerHandler.Service.GetAllCustomers()
 	contentType := request.Header.Get("Content-type") == util.ContentTypeXml
 	customerHandler.returnResponse(writer, err, contentType, customers)
 
 }
 
-func (customerHandler *CustomerHandler) getCustomer(writer http.ResponseWriter, request *http.Request) {
+func (customerHandler *CustomerHandler) GetCustomer(writer http.ResponseWriter, request *http.Request) {
 	print("Called get a customer  \n")
 	vars := mux.Vars(request)
-	customer, err := customerHandler.service.GetCustomer(vars["id"])
+	customer, err := customerHandler.Service.GetCustomer(vars["id"])
 	contentType := request.Header.Get("Content-Type") == util.ContentTypeXml
 	if err != nil {
 		if contentType {

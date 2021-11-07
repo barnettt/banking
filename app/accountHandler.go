@@ -13,10 +13,10 @@ import (
 )
 
 type AccountHandler struct {
-	accountService service.AccountService
+	AccountService service.AccountService
 }
 
-func (accountHandler *AccountHandler) saveAccount(writer http.ResponseWriter, request *http.Request) {
+func (accountHandler *AccountHandler) SaveAccount(writer http.ResponseWriter, request *http.Request) {
 	vars := mux.Vars(request)
 	contentType := request.Header.Get("Content-Type")
 	account, derr := getDecodedAccount(contentType, request)
@@ -26,7 +26,7 @@ func (accountHandler *AccountHandler) saveAccount(writer http.ResponseWriter, re
 		return
 	}
 	account.CustomerId = vars["id"]
-	acc, err := accountHandler.accountService.Save(account)
+	acc, err := accountHandler.AccountService.Save(account)
 	if err != nil {
 		appError := exceptions.NewPayloadParseError("Unable save to account")
 		WriteResponse(writer, http.StatusInternalServerError, appError.AsMessage(), contentType)

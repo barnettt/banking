@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+//go:generate mockgen -destination=../mock/service/mockTransactionService.go -package=service github.com/barnettt/banking/service TransactionService
 type TransactionService interface {
 	NewTransaction(*dto.TransactionRequest) (*dto.TransactionResponse, *exceptions.AppError)
 }
@@ -45,7 +46,10 @@ func (defaultTransactionService DefaultTransactionService) NewTransaction(transa
 
 	transactionResponse, err := defaultTransactionService.repository.NewTransaction(transaction)
 	if err != nil {
-		tx.Rollback()
+		ex := tx.Rollback()
+		if ex != nil {
+			return nil, exceptions.NewDatabaseError(ex.Error())
+		}
 		return nil, exceptions.NewDatabaseError(err.Message)
 	}
 	// could find the account by id and update the transaction response with

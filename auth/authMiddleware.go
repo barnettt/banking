@@ -33,7 +33,7 @@ func (authMiddleware AuthorisationMiddleware) AuthorisationHandler() func(handle
 					return
 				}
 			} else {
-				appErr := exceptions.AppError{Code: http.StatusForbidden, Message: "User not authenticated"}
+				appErr := exceptions.AppError{Code: http.StatusForbidden, Message: "auth token is missing"}
 				util.WriteResponse(response, http.StatusForbidden, appErr, contentType)
 			}
 		})

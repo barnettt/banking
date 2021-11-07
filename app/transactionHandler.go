@@ -16,7 +16,7 @@ type TransactionHandler struct {
 	TransactionService service.TransactionService
 }
 
-func (transactionHandler *TransactionHandler) saveTransaction(writer http.ResponseWriter, request *http.Request) {
+func (transactionHandler *TransactionHandler) SaveTransaction(writer http.ResponseWriter, request *http.Request) {
 
 	contType := request.Header.Get("Content-Type")
 	var contentType bool
@@ -29,12 +29,12 @@ func (transactionHandler *TransactionHandler) saveTransaction(writer http.Respon
 		appError := exceptions.NewPayloadParseError("Error parsing transaction data")
 		transactionHandler.returnResponse(writer, appError, contentType, nil)
 	}
-	account, error := transactionHandler.TransactionService.NewTransaction(inRequest)
-	if error != nil {
-		transactionHandler.returnResponse(writer, error, contentType, nil)
+	account, appErr := transactionHandler.TransactionService.NewTransaction(inRequest)
+	if appErr != nil {
+		transactionHandler.returnResponse(writer, appErr, contentType, nil)
 		return
 	}
-	transactionHandler.returnResponse(writer, error, contentType, account)
+	transactionHandler.returnResponse(writer, appErr, contentType, account)
 }
 
 func getTransactionRequest(request *http.Request, contentType bool) (*dto.TransactionRequest, error) {

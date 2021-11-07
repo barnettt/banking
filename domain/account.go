@@ -30,6 +30,7 @@ func (account Account) getDbStatus() string {
 	return status
 }
 
+//go:generate mockgen -destination=../mock/domain/mockAccountRepository.go -package=domain github.com/barnettt/banking/domain AccountRepository
 type AccountRepository interface {
 	Save(Account) (*dto.NewAccountResponse, *exceptions.AppError)
 	GetAccount(accountId string) (*dto.AccountRequest, *exceptions.AppError)

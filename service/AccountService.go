@@ -10,6 +10,7 @@ import (
 	"time"
 )
 
+//go:generate mockgen -destination=../mock/service/mockAccountService.go -package=service github.com/barnettt/banking/service AccountService
 type AccountService interface {
 	Save(account *dto.AccountRequest) (*dto.NewAccountResponse, *exceptions.AppError)
 	GetAccount(accountId string) (*domain.Account, *exceptions.AppError)
@@ -21,7 +22,11 @@ type DefaultAccountService struct {
 }
 
 func (defaultAccountService DefaultAccountService) Save(account *dto.AccountRequest) (*dto.NewAccountResponse, *exceptions.AppError) {
-	dtoAcc := getDomainAccount(account)
+	dtoAcc, err := GetDomainAccount(account)
+	if err != nil {
+		logger.Error(err.Message)
+		return nil, err
+	}
 	accResponse, err := defaultAccountService.repository.Save(*dtoAcc)
 	if err != nil {
 		logger.Error(err.Message)
@@ -30,20 +35,27 @@ func (defaultAccountService DefaultAccountService) Save(account *dto.AccountRequ
 	return accResponse, nil
 }
 
-func getDomainAccount(request *dto.AccountRequest) *domain.Account {
+func GetDomainAccount(request *dto.AccountRequest) (*domain.Account, *exceptions.AppError) {
 	amount := fmt.Sprintf("%f", request.Amount)
-	request.Validate()
+	err := request.Validate()
+	if err != nil {
+		logger.Error("account validation failed : " + err.Message)
+		return nil, err
+	}
 	// using time.Now().Format("2021-10-02T11:26:20")
 	// kept failing as the date produced seemed to be mangled
 	// using civil datetime seems to be ok with mysql db
-	dateTime := civil.DateTimeOf(time.Now())
+	dateTime := civil.DateTimeOf(time.Now()).String()
+	if request.OpeningDate != "" {
+		dateTime = request.OpeningDate
+	}
 	domAcc := domain.Account{CustomerId: request.CustomerId,
 		Amount:      amount,
-		OpeningDate: dateTime.String(),
+		OpeningDate: dateTime,
 		AccountType: request.AccountType,
 		Status:      "1",
 	}
-	return &domAcc
+	return &domAcc, nil
 }
 
 func (defaultAccountService DefaultAccountService) GetAccount(accountId string) (*domain.Account, *exceptions.AppError) {
@@ -52,7 +64,11 @@ func (defaultAccountService DefaultAccountService) GetAccount(accountId string) 
 	if err != nil {
 		return nil, err
 	}
-	return getDomainAccount(account), nil
+	domainAccount, appErr := GetDomainAccount(account)
+	if err != nil {
+		return nil, appErr
+	}
+	return domainAccount, nil
 }
 
 func (defaultAccountService DefaultAccountService) UpdateAccount(account *domain.Account) *exceptions.AppError {
