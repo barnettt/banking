@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/barnettt/banking/domain"
 	"github.com/barnettt/banking/dto"
+	"github.com/barnettt/banking/exceptions"
 	"github.com/barnettt/banking/mock/db"
 	domain2 "github.com/barnettt/banking/mock/domain"
 	"github.com/barnettt/banking/service"
@@ -45,15 +46,79 @@ func Test_should_create_new_transaction_on_account(t *testing.T) {
 
 	account := getAnAccountRequest()
 	domainAccount := getADomainAccount()
-	accountRepository.EXPECT().GetAccount("1234").Return(account, nil)
-	transactionManager.EXPECT().StartTransaction().Return(tx, nil)
-	accountRepository.EXPECT().UpdateAccount(domainAccount).Return(nil)
-	transactionRepository.EXPECT().NewTransaction(domainTransaction).Return(transactionResponse, nil)
+	expectations(account, domainAccount, domainTransaction, transactionResponse)
 	// Act
 	response, _ := transactionService.NewTransaction(transactionRequest)
 	// Assert
 	assert.NotNil(t, response, "Failed to create new transaction, no response returned")
 	assert.Equal(t, transactionResponse, response, "Failed transaction response not matching")
+}
+
+func expectations(account *dto.AccountRequest, domainAccount domain.Account, domainTransaction domain.Transaction, transactionResponse *dto.TransactionResponse) {
+	accountRepository.EXPECT().GetAccount("1234").Return(account, nil)
+	transactionManager.EXPECT().StartTransaction().Return(tx, nil)
+	accountRepository.EXPECT().UpdateAccount(domainAccount).Return(nil)
+	transactionRepository.EXPECT().NewTransaction(domainTransaction).Return(transactionResponse, nil)
+}
+
+func Test_should_throw_unexpected_database_error_when_new_transaction_on_account_called(t *testing.T) {
+
+	// Arrange
+	tearDown := setUpForTransactions(t)
+	defer tearDown()
+
+	transactionRequest := getATransactionRequest()
+	accountRepository.EXPECT().GetAccount("1234").Return(nil, exceptions.NewDatabaseError("Unexpected database error"))
+	// Act
+	_, err := transactionService.NewTransaction(transactionRequest)
+	// Assert
+	assert.NotNil(t, err, "Failed to throw exception in error case")
+	assert.Equal(t, "Unexpected database error", err.Message, "Failed transaction response not matching")
+}
+
+func Test_should_throw_error_when_account_update_fails_when_new_transaction_on_account(t *testing.T) {
+
+	// Arrange
+	tearDown := setUpForTransactions(t)
+	defer tearDown()
+	domainTransaction := getADomainTransaction()
+	transactionRequest := getATransactionRequest()
+	account := getAnAccountRequest()
+	domainAccount := getADomainAccount()
+
+	accountRepository.EXPECT().GetAccount("1234").Return(account, nil)
+	transactionManager.EXPECT().StartTransaction().Return(tx, nil)
+	accountRepository.EXPECT().UpdateAccount(domainAccount).Return(exceptions.NewDatabaseError("Unable to update account"))
+	expectations(account, domainAccount, domainTransaction, nil)
+	// Act
+	_, err := transactionService.NewTransaction(transactionRequest)
+	// Assert
+	assert.NotNil(t, err, "Failed to throw error when create new transaction, update account call")
+	assert.Equal(t, "Unable to update account", err.Message, "Failed transaction response not matching")
+}
+
+func Test_should_throw_error_when_new_transaction_on_account_saved(t *testing.T) {
+
+	// Arrange
+	tearDown := setUpForTransactions(t)
+	defer tearDown()
+
+	transactionRequest := getATransactionRequest()
+	domainTransaction := getADomainTransaction()
+	account := getAnAccountRequest()
+	domainAccount := getADomainAccount()
+
+	accountRepository.EXPECT().GetAccount("1234").Return(account, nil)
+	transactionManager.EXPECT().StartTransaction().Return(tx, nil)
+	accountRepository.EXPECT().UpdateAccount(domainAccount).Return(nil)
+	transactionManager.EXPECT().StartTransaction().Return(tx, nil)
+	transactionManager.EXPECT().RollbackTransaction(tx).Return(exceptions.NewDatabaseError("Unable to save transaction"))
+	transactionRepository.EXPECT().NewTransaction(domainTransaction).Return(nil, exceptions.NewDatabaseError("Unable to save transaction"))
+	// Act
+	_, err := transactionService.NewTransaction(transactionRequest)
+	// Assert
+	assert.NotNil(t, err, "Failed to create new transaction, no response returned")
+	assert.Equal(t, "Unable to save transaction", err.Message, "Failed transaction response not matching")
 }
 
 // helper functions for data

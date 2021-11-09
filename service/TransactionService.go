@@ -41,7 +41,7 @@ func (defaultTransactionService DefaultTransactionService) NewTransaction(transa
 	tx, err := defaultTransactionService.TransactionManager.StartTransaction()
 	err = doAccountUpdate(defaultTransactionService, account)
 	if err != nil {
-		return nil, exceptions.NewDatabaseError("Unknown account type")
+		return nil, exceptions.NewDatabaseError("Unable to update account")
 	}
 
 	transactionResponse, err := defaultTransactionService.Repository.NewTransaction(transaction)
