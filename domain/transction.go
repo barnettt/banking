@@ -13,6 +13,7 @@ type Transaction struct {
 	TransactionDate string  `db:"transaction_date"`
 }
 
+//go:generate mockgen -destination=../mock/domain/mockTransactionRepository.go -package=domain github.com/barnettt/banking/domain TransactionRepository
 type TransactionRepository interface {
 	NewTransaction(transaction Transaction) (*dto.TransactionResponse, *exceptions.AppError)
 }

@@ -16,14 +16,14 @@ type TransactionService interface {
 }
 
 type DefaultTransactionService struct {
-	repository         domain.TransactionRepository
-	accountRepository  domain.AccountRepository
-	transactionManager db.TxManager
+	Repository         domain.TransactionRepository
+	AccountRepository  domain.AccountRepository
+	TransactionManager db.TransactionManager //db.TxManager
 }
 
 func (defaultTransactionService DefaultTransactionService) NewTransaction(transactionRequest *dto.TransactionRequest) (*dto.TransactionResponse, *exceptions.AppError) {
 	transaction := getDomainTransaction(*transactionRequest)
-	account, err := defaultTransactionService.accountRepository.GetAccount(transactionRequest.AccountId)
+	account, err := defaultTransactionService.AccountRepository.GetAccount(transactionRequest.AccountId)
 	if err != nil {
 		return nil, exceptions.NewDatabaseError(err.Message)
 	}
@@ -38,17 +38,17 @@ func (defaultTransactionService DefaultTransactionService) NewTransaction(transa
 	} else {
 		return nil, exceptions.NewValidationError("Unknown account type")
 	}
-	tx, err := defaultTransactionService.transactionManager.StartTransaction()
+	tx, err := defaultTransactionService.TransactionManager.StartTransaction()
 	err = doAccountUpdate(defaultTransactionService, account)
 	if err != nil {
 		return nil, exceptions.NewDatabaseError("Unknown account type")
 	}
 
-	transactionResponse, err := defaultTransactionService.repository.NewTransaction(transaction)
+	transactionResponse, err := defaultTransactionService.Repository.NewTransaction(transaction)
 	if err != nil {
-		ex := tx.Rollback()
+		ex := defaultTransactionService.TransactionManager.RollbackTransaction(tx)
 		if ex != nil {
-			return nil, exceptions.NewDatabaseError(ex.Error())
+			return nil, ex
 		}
 		return nil, exceptions.NewDatabaseError(err.Message)
 	}
@@ -64,7 +64,7 @@ func (defaultTransactionService DefaultTransactionService) NewTransaction(transa
 
 func doAccountUpdate(defaultTransactionService DefaultTransactionService, account *dto.AccountRequest) *exceptions.AppError {
 
-	err := defaultTransactionService.accountRepository.UpdateAccount(*getAccount(account))
+	err := defaultTransactionService.AccountRepository.UpdateAccount(*getAccount(account))
 	if err != nil {
 		return exceptions.NewDatabaseError("Unable To update account")
 	}
@@ -74,11 +74,15 @@ func doAccountUpdate(defaultTransactionService DefaultTransactionService, accoun
 
 func getDomainTransaction(request dto.TransactionRequest) domain.Transaction {
 	dateTime := civil.DateTimeOf(time.Now())
+	var dateStr = dateTime.String()
+	if request.DateTime != "" {
+		dateStr = request.DateTime
+	}
 	dt := domain.Transaction{
 		AccountId:       request.AccountId,
 		Amount:          request.Amount,
 		TransactionType: request.TransactionType,
-		TransactionDate: dateTime.String(),
+		TransactionDate: dateStr,
 	}
 	return dt
 }
@@ -89,16 +93,20 @@ func getAccount(request *dto.AccountRequest) *domain.Account {
 	// kept failing as the date produced seemed to be mangled
 	// using civil datetime seems to be ok with mysql db
 	dateTime := civil.DateTimeOf(time.Now())
+	var dateStr = dateTime.String()
+	if request.OpeningDate != "" {
+		dateStr = request.OpeningDate
+	}
 	domAcc := domain.Account{CustomerId: request.CustomerId,
 		AccountId:   request.AccountId,
 		Amount:      amount,
-		OpeningDate: dateTime.String(),
+		OpeningDate: dateStr,
 		AccountType: request.AccountType,
 		Status:      "1",
 	}
 	return &domAcc
 }
 
-func NewTransactionService(repo domain.TransactionRepositoryDb, accountRepo domain.AccountRepositoryDb, manager db.TxManager) DefaultTransactionService {
-	return DefaultTransactionService{repository: repo, accountRepository: accountRepo, transactionManager: manager}
+func NewTransactionService(repo domain.TransactionRepository, accountRepo domain.AccountRepository, manager db.TransactionManager) DefaultTransactionService {
+	return DefaultTransactionService{Repository: repo, AccountRepository: accountRepo, TransactionManager: manager}
 }

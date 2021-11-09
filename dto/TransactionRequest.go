@@ -8,6 +8,7 @@ type TransactionRequest struct {
 	AccountId       string  `json:"account_id"  xml:"account_id"`
 	Amount          float64 `json:"amount"  xml:"amount"`
 	TransactionType string  `json:"transaction_type" xml:"transaction_type"`
+	DateTime        string  `json:"_"  xml:"_"`
 }
 
 func Validate(account *AccountRequest, transaction *TransactionRequest) *exceptions.AppError {

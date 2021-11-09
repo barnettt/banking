@@ -34,13 +34,13 @@ func StartApp() {
 	// print("creating mux\n ")
 	logger.Info("creating mux ")
 	// mux := http.NewServeMux()
-	transactionManager := getTransactionManager(dbClient)
+	// transactionManager := getTransactionManager(dbClient)
 	router := mux.NewRouter()
 	// Wiring app components
 	// handler := CustomerHandler{Service.NewCustomerService(domain.NewCustomerRepositoryStub())}
 	customerHandler := CustomerHandler{service.NewCustomerService(domain.NewCustomerRepositoryDb(dbClient))}
 	accountHandler := AccountHandler{service.NewAccountService(domain.NewAccountRepositoryDb(dbClient))}
-	transactionHandler := TransactionHandler{service.NewTransactionService(domain.NewTransactionRepositoryDb(dbClient), domain.NewAccountRepositoryDb(dbClient), transactionManager)}
+	transactionHandler := TransactionHandler{service.NewTransactionService(domain.NewTransactionRepositoryDb(dbClient), domain.NewAccountRepositoryDb(dbClient), db.NewTxManager(dbClient))}
 
 	// define all the routes
 

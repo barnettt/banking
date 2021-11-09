@@ -5,6 +5,7 @@ import (
 	"github.com/barnettt/banking/dto"
 	"github.com/barnettt/banking/exceptions"
 	domain2 "github.com/barnettt/banking/mock/domain"
+	service2 "github.com/barnettt/banking/service"
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -16,15 +17,14 @@ GetCustomer(id string) (*dto.CustomerResponse, *exceptions.AppError)
 GetCustomersByStatus(status string) ([]dto.CustomerResponse, *exceptions.AppError)
 */
 
-var controller *gomock.Controller
 var customerRepository *domain2.MockCustomerRepository
-var customerService CustomerService
+var customerService service2.CustomerService
 
 func customerServiceTestSetup(t *testing.T) func() {
 	controller = gomock.NewController(t)
 	defer controller.Finish()
 	customerRepository = domain2.NewMockCustomerRepository(controller)
-	customerService = NewCustomerService(customerRepository)
+	customerService = service2.NewCustomerService(customerRepository)
 
 	return func() {
 		customerService = nil
@@ -96,6 +96,7 @@ func Test_should_get_customers_by_status_returning_customer(t *testing.T) {
 	assert.Equal(t, expectedCustomers, cust, "Failed to find all customers ")
 	assert.Equal(t, "active", cust[0].Status, "Failed customer 0 status not matching")
 	assert.Equal(t, "active", cust[1].Status, "Failed customer 1 status not matching")
+
 }
 
 func Test_should_throw_error_when_get_all_customers_is_called(t *testing.T) {
