@@ -2,8 +2,8 @@ package domain
 
 import (
 	json2 "encoding/json"
-	"github.com/barnettt/banking/exceptions"
-	"github.com/barnettt/banking/logger"
+	"github.com/barnettt/banking-lib/exceptions"
+	"github.com/barnettt/banking-lib/logger"
 	"github.com/jmoiron/sqlx"
 	"net/http"
 	"net/url"
@@ -63,15 +63,15 @@ func (repository AuthorisationRepositoryDB) IsUserAuthorised(token string, curre
 func buildVerifyUrl(token string, route string, vars map[string]string) string {
 	port := os.Getenv("AUTH_SERVER_PORT")
 	host := os.Getenv("SERVER_HOST")
-	url := url.URL{Host: host + ":" + port, Path: "auth/verify", Scheme: "http"}
-	params := url.Query()
+	authUrl := url.URL{Host: host + ":" + port, Path: "auth/verify", Scheme: "http"}
+	params := authUrl.Query()
 	params.Add("token", token)
 	params.Add("operation", route)
 	for k, v := range vars {
 		params.Add(k, v)
 	}
-	url.RawQuery = params.Encode()
-	logger.Info(url.String())
-	return url.String()
+	authUrl.RawQuery = params.Encode()
+	logger.Info(authUrl.String())
+	return authUrl.String()
 
 }

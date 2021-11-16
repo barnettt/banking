@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"github.com/barnettt/banking/exceptions"
+	"github.com/barnettt/banking-lib/exceptions"
 )
 
 type TransactionRequest struct {

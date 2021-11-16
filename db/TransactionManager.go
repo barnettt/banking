@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/barnettt/banking/exceptions"
+	"github.com/barnettt/banking-lib/exceptions"
 	"github.com/jmoiron/sqlx"
 )
 

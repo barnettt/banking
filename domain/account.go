@@ -1,8 +1,8 @@
 package domain
 
 import (
+	"github.com/barnettt/banking-lib/exceptions"
 	"github.com/barnettt/banking/dto"
-	"github.com/barnettt/banking/exceptions"
 )
 
 type Account struct {

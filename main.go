@@ -1,8 +1,8 @@
 package main
 
 import (
+	"github.com/barnettt/banking-lib/logger"
 	"github.com/barnettt/banking/app"
-	"github.com/barnettt/banking/logger"
 )
 
 func main() {

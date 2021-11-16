@@ -2,10 +2,10 @@ package service
 
 import (
 	"fmt"
+	"github.com/barnettt/banking-lib/exceptions"
+	"github.com/barnettt/banking-lib/logger"
 	"github.com/barnettt/banking/domain"
 	"github.com/barnettt/banking/dto"
-	"github.com/barnettt/banking/exceptions"
-	"github.com/barnettt/banking/logger"
 	"github.com/golang-sql/civil"
 	"time"
 )

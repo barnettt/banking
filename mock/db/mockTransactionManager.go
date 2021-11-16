@@ -7,7 +7,7 @@ package db
 import (
 	reflect "reflect"
 
-	exceptions "github.com/barnettt/banking/exceptions"
+	exceptions "github.com/barnettt/banking-lib/exceptions"
 	gomock "github.com/golang/mock/gomock"
 	sqlx "github.com/jmoiron/sqlx"
 )

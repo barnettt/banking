@@ -2,10 +2,10 @@ package app
 
 import (
 	"fmt"
+	"github.com/barnettt/banking-lib/logger"
 	"github.com/barnettt/banking/auth"
 	"github.com/barnettt/banking/db"
 	"github.com/barnettt/banking/domain"
-	"github.com/barnettt/banking/logger"
 	"github.com/barnettt/banking/service"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"

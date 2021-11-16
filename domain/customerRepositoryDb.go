@@ -3,8 +3,8 @@ package domain
 import (
 	"database/sql"
 	_ "errors"
-	"github.com/barnettt/banking/exceptions"
-	"github.com/barnettt/banking/logger"
+	"github.com/barnettt/banking-lib/exceptions"
+	"github.com/barnettt/banking-lib/logger"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )

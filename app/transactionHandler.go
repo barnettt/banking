@@ -3,9 +3,9 @@ package app
 import (
 	"encoding/json"
 	"encoding/xml"
+	"github.com/barnettt/banking-lib/exceptions"
+	"github.com/barnettt/banking-lib/logger"
 	"github.com/barnettt/banking/dto"
-	"github.com/barnettt/banking/exceptions"
-	"github.com/barnettt/banking/logger"
 	"github.com/barnettt/banking/service"
 	"github.com/barnettt/banking/util"
 	"github.com/gorilla/mux"

@@ -1,9 +1,9 @@
 package service
 
 import (
+	"github.com/barnettt/banking-lib/exceptions"
 	"github.com/barnettt/banking/domain"
 	"github.com/barnettt/banking/dto"
-	"github.com/barnettt/banking/exceptions"
 )
 
 //go:generate mockgen -destination=../mock/service/mockCustomerService.go -package=service github.com/barnettt/banking/service CustomerService

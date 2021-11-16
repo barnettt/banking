@@ -7,8 +7,8 @@ package domain
 import (
 	reflect "reflect"
 
+	exceptions "github.com/barnettt/banking-lib/exceptions"
 	domain "github.com/barnettt/banking/domain"
-	exceptions "github.com/barnettt/banking/exceptions"
 	gomock "github.com/golang/mock/gomock"
 )
 

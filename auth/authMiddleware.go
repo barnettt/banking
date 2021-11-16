@@ -1,9 +1,9 @@
 package auth
 
 import (
+	"github.com/barnettt/banking-lib/exceptions"
+	"github.com/barnettt/banking-lib/logger"
 	"github.com/barnettt/banking/domain"
-	"github.com/barnettt/banking/exceptions"
-	"github.com/barnettt/banking/logger"
 	"github.com/barnettt/banking/util"
 	"github.com/gorilla/mux"
 	"net/http"

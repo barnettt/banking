@@ -3,6 +3,7 @@ module github.com/barnettt/banking
 go 1.16
 
 require (
+	github.com/barnettt/banking-lib v1.0.0-banking-lib // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang-sql/civil v0.0.0-20190719163853-cb61b32ac6fe // indirect
 	github.com/golang/mock v1.6.0 // indirect

@@ -1,9 +1,9 @@
 package service
 
 import (
+	"github.com/barnettt/banking-lib/exceptions"
 	"github.com/barnettt/banking/domain"
 	"github.com/barnettt/banking/dto"
-	"github.com/barnettt/banking/exceptions"
 	"github.com/barnettt/banking/mock/db"
 	domain2 "github.com/barnettt/banking/mock/domain"
 	"github.com/barnettt/banking/service"
@@ -24,14 +24,14 @@ var transactionRepository *domain2.MockTransactionRepository
 var transactionManager *db.MockTransactionManager
 
 func setUpForTransactions(t *testing.T) func() {
-	controller = gomock.NewController(t)
-	transactionRepository = domain2.NewMockTransactionRepository(controller)
-	accountRepository = domain2.NewMockAccountRepository(controller)
-	transactionManager = db.NewMockTransactionManager(controller)
+	stController = gomock.NewController(t)
+	transactionRepository = domain2.NewMockTransactionRepository(stController)
+	accountRepository = domain2.NewMockAccountRepository(stController)
+	transactionManager = db.NewMockTransactionManager(stController)
 	transactionService = service.NewTransactionService(transactionRepository, accountRepository, transactionManager)
-	defer controller.Finish()
+	defer stController.Finish()
 	return func() {
-		defer controller.Finish()
+		defer stController.Finish()
 	}
 }
 func Test_should_create_new_transaction_on_account(t *testing.T) {

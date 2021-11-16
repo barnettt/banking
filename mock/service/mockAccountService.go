@@ -7,9 +7,9 @@ package service
 import (
 	reflect "reflect"
 
+	exceptions "github.com/barnettt/banking-lib/exceptions"
 	domain "github.com/barnettt/banking/domain"
 	dto "github.com/barnettt/banking/dto"
-	exceptions "github.com/barnettt/banking/exceptions"
 	gomock "github.com/golang/mock/gomock"
 )
 

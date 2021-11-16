@@ -1,9 +1,9 @@
 package service
 
 import (
+	"github.com/barnettt/banking-lib/exceptions"
 	trueDomian "github.com/barnettt/banking/domain"
 	"github.com/barnettt/banking/dto"
-	"github.com/barnettt/banking/exceptions"
 	"github.com/barnettt/banking/mock/domain"
 	service2 "github.com/barnettt/banking/service"
 	"github.com/golang-sql/civil"
@@ -13,18 +13,18 @@ import (
 	"time"
 )
 
-var controller *gomock.Controller
+var stController *gomock.Controller
 var accountRepository *domain.MockAccountRepository
 var accountService service2.AccountService
 
 func accountServiceTestSetup(t *testing.T) func() {
-	controller = gomock.NewController(t)
-	accountRepository = domain.NewMockAccountRepository(controller)
+	stController = gomock.NewController(t)
+	accountRepository = domain.NewMockAccountRepository(stController)
 	accountService = service2.NewAccountService(accountRepository)
 
 	return func() {
 		accountService = nil
-		defer controller.Finish()
+		defer stController.Finish()
 	}
 
 }

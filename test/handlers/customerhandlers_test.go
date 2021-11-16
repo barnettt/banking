@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	"github.com/barnettt/banking-lib/exceptions"
 	"github.com/barnettt/banking/app"
 	"github.com/barnettt/banking/dto"
-	"github.com/barnettt/banking/exceptions"
 	"github.com/barnettt/banking/mock/service"
 	"github.com/golang/mock/gomock"
 	"github.com/gorilla/mux"

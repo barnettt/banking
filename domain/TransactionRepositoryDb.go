@@ -1,9 +1,9 @@
 package domain
 
 import (
+	"github.com/barnettt/banking-lib/exceptions"
+	"github.com/barnettt/banking-lib/logger"
 	"github.com/barnettt/banking/dto"
-	"github.com/barnettt/banking/exceptions"
-	"github.com/barnettt/banking/logger"
 	"github.com/jmoiron/sqlx"
 	"strconv"
 )
